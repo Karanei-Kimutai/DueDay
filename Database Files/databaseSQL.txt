@@ -1,0 +1,201 @@
+-- Create the DueDay database
+CREATE DATABASE IF NOT EXISTS DueDay;
+USE DueDay;
+
+-- Role table
+CREATE TABLE Role (
+    Role_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Role_Name VARCHAR(50) NOT NULL
+);
+
+-- Users table
+CREATE TABLE Users (
+    User_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Email VARCHAR(100) NOT NULL UNIQUE,
+    Password VARCHAR(255) NOT NULL,  -- Stored as hashed
+    F_Name VARCHAR(50) NOT NULL,
+    L_Name VARCHAR(50) NOT NULL,
+    Role_ID INT NOT NULL,
+    FOREIGN KEY (Role_ID) REFERENCES Role(Role_ID)
+);
+
+-- Timetable table
+CREATE TABLE Timetable (
+    Timetable_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Timetable_Url VARCHAR(255),
+    Timetable_BLOB LONGBLOB
+);
+
+-- User_Timetable junction table
+CREATE TABLE User_Timetable (
+    User_Timetable_ID INT AUTO_INCREMENT PRIMARY KEY,
+    User_ID INT NOT NULL,
+    Timetable_ID INT NOT NULL,
+    FOREIGN KEY (User_ID) REFERENCES Users(User_ID),
+    FOREIGN KEY (Timetable_ID) REFERENCES Timetable(Timetable_ID)
+);
+
+-- Venues table
+CREATE TABLE Venues (
+    Venue_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Venue_Name VARCHAR(100) NOT NULL
+);
+
+-- Events table
+CREATE TABLE Events (
+    Event_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Event_Name VARCHAR(100) NOT NULL,
+    Event_Description TEXT,
+    Event_Date DATETIME NOT NULL,
+    Venue_ID INT NOT NULL,
+    FOREIGN KEY (Venue_ID) REFERENCES Venues(Venue_ID)
+);
+
+-- Event_Attendee_Data table
+CREATE TABLE Event_Attendee_Data (
+    Attendee_ID INT AUTO_INCREMENT PRIMARY KEY,
+    User_ID INT NOT NULL,
+    Event_ID INT NOT NULL,
+    FOREIGN KEY (User_ID) REFERENCES Users(User_ID),
+    FOREIGN KEY (Event_ID) REFERENCES Events(Event_ID)
+);
+
+-- Priority table
+CREATE TABLE Priority (
+    Priority_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Priority_Type VARCHAR(50) NOT NULL
+);
+
+-- Announcements table
+CREATE TABLE Announcements (
+    Announcement_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Announcement_Title VARCHAR(100) NOT NULL,
+    Announcement_Description TEXT,
+    Announcement_Priority INT NOT NULL,
+    Creator_User_ID INT NOT NULL,
+    FOREIGN KEY (Announcement_Priority) REFERENCES Priority(Priority_ID),
+    FOREIGN KEY (Creator_User_ID) REFERENCES Users(User_ID)
+);
+
+-- Announcement_User junction table
+CREATE TABLE Announcement_User (
+    Announcement_User_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Announcement_ID INT NOT NULL,
+    User_ID INT NOT NULL,
+    FOREIGN KEY (Announcement_ID) REFERENCES Announcements(Announcement_ID),
+    FOREIGN KEY (User_ID) REFERENCES Users(User_ID)
+);
+
+-- Assignments table
+CREATE TABLE Assignments (
+    Assignment_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Assignment_Creator_ID INT NOT NULL,
+    Assignment_Title VARCHAR(100) NOT NULL,
+    Assignment_Description TEXT,
+    Assignment_DueDate DATETIME NOT NULL,
+    Assignment_Marks INT,
+    Assignment_Instructions TEXT,
+    FOREIGN KEY (Assignment_Creator_ID) REFERENCES Users(User_ID)
+);
+
+-- Assignment_Submission_Data table
+CREATE TABLE Assignment_Submission_Data (
+    Submission_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Assignment_ID INT NOT NULL,
+    User_ID INT NOT NULL,
+    Submission_Date DATETIME NOT NULL,
+    FOREIGN KEY (Assignment_ID) REFERENCES Assignments(Assignment_ID),
+    FOREIGN KEY (User_ID) REFERENCES Users(User_ID)
+);
+
+-- Admin_Data table
+CREATE TABLE Admin_Data (
+    Data_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Data_Description VARCHAR(255) NOT NULL,
+    Data_Value VARCHAR(255) NOT NULL
+);
+
+-- Comments table
+CREATE TABLE Comments (
+    Comment_ID INT AUTO_INCREMENT PRIMARY KEY,
+    User_ID INT NOT NULL,
+    Comment_Content TEXT NOT NULL,
+    Comment_Date DATETIME NOT NULL,
+    FOREIGN KEY (User_ID) REFERENCES Users(User_ID)
+);
+
+-- Classes table
+CREATE TABLE Classes (
+    Class_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Class_Name VARCHAR(100) NOT NULL
+);
+
+-- Class_Schedule table
+CREATE TABLE Class_Schedule (
+    Entry_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Class_ID INT NOT NULL,
+    Class_Time DATETIME NOT NULL,
+    Venue_ID INT NOT NULL,
+    FOREIGN KEY (Class_ID) REFERENCES Classes(Class_ID),
+    FOREIGN KEY (Venue_ID) REFERENCES Venues(Venue_ID)
+);
+
+-- Notifications table
+CREATE TABLE Notifications (
+    Notification_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Notification_Content TEXT NOT NULL,
+    Notification_Date DATETIME NOT NULL
+);
+
+-- Notification_User junction table
+CREATE TABLE Notification_User (
+    Notification_User_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Notification_ID INT NOT NULL,
+    User_ID INT NOT NULL,
+    FOREIGN KEY (Notification_ID) REFERENCES Notifications(Notification_ID),
+    FOREIGN KEY (User_ID) REFERENCES Users(User_ID)
+);
+
+-- Polls table
+CREATE TABLE Polls (
+    Poll_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Poll_Title VARCHAR(100) NOT NULL,
+    Poll_Description TEXT,
+    Expires_At DATETIME NOT NULL,
+    Status VARCHAR(20) NOT NULL
+);
+
+-- Poll_Options table
+CREATE TABLE Poll_Options (
+    Option_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Poll_ID INT NOT NULL,
+    Option_Text VARCHAR(255) NOT NULL,
+    FOREIGN KEY (Poll_ID) REFERENCES Polls(Poll_ID)
+);
+
+-- Poll_Data table
+CREATE TABLE Poll_Data (
+    User_ID INT NOT NULL,
+    Poll_ID INT NOT NULL,
+    Option_ID INT NOT NULL,
+    PRIMARY KEY (User_ID, Poll_ID),
+    FOREIGN KEY (User_ID) REFERENCES Users(User_ID),
+    FOREIGN KEY (Poll_ID) REFERENCES Polls(Poll_ID),
+    FOREIGN KEY (Option_ID) REFERENCES Poll_Options(Option_ID)
+);
+
+-- Achievements table
+CREATE TABLE Achievements (
+    Achievement_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Achievement_Description TEXT NOT NULL,
+    Achievement_Points INT NOT NULL
+);
+
+-- User_Achievements junction table
+CREATE TABLE User_Achievements (
+    User_ID INT NOT NULL,
+    Achievement_ID INT NOT NULL,
+    PRIMARY KEY (User_ID, Achievement_ID),
+    FOREIGN KEY (User_ID) REFERENCES Users(User_ID),
+    FOREIGN KEY (Achievement_ID) REFERENCES Achievements(Achievement_ID)
+);
