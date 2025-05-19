@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DUEDAY - Module Leader Assignment Dashboard</title>
+    <link rel="stylesheet" href="assignment.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="logo">
+                <img src="dueday.icons/dueday.png" alt="DUEDAY Logo" class="logo-icon">
+                <span>DUEDAY</span>
+            </div>
+            <ul class="nav-menu">
+  <li class="nav-item">
+    <a href="home.html">
+      <img src="dueday.icons/home.png" alt="Home" class="nav-icon">
+      <span>Home</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a href="assignment.html">
+      <img src="dueday.icons/assignment.png" alt="Assignments" class="nav-icon">
+      <span>Assignments</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a href="poll.html">
+      <img src="dueday.icons/poll.png" alt="Polls" class="nav-icon">
+      <span>Polls</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a href="event.html">
+      <img src="dueday.icons/event.png" alt="Events" class="nav-icon">
+      <span>Events</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a href="timetable.html">
+      <img src="dueday.icons/table.png" alt="Timetable" class="nav-icon">
+      <span>Timetable</span>
+    </a>
+  </li>
+</ul>
+
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="welcome-header">
+                <div class="assignment-actions">
+                    <button class="create-btn">
+                        <img src="dueday.icons/assignment.png" alt="Create Assignment" class="btn-icon">
+                        <span>Create Assignment</span>
+                    </button>
+                    <button class="view-btn">
+                        <img src="dueday.icons/view.svg" alt="View Assignments" class="btn-icon">
+                        <span>View Assignments</span>
+                    </button>
+                </div>
+                <div class="profile-section">
+                    <div class="welcome-message">Welcome, Natalie</div>
+                    <img src="dueday.icons/admin.png" alt="Module Leader" class="profile-icon">
+                </div>
+            </div>
+
+            <!-- Assignment Creation Form -->
+            <div class="assignment-form">
+                <div class="form-title">Create an assignment</div>
+                
+                <div class="form-group">
+                    <label class="form-label">Title:</label>
+                    <input type="text" class="form-input" placeholder="Enter title">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Description:</label>
+                    <input type="text" class="form-input" placeholder="Enter Description">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Due Date:</label>
+                    <input type="text" class="form-input" placeholder="Pick Time and Date">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Attach Resources:</label>
+                    <div class="file-upload">
+                        <button class="file-upload-btn">
+                            <img src="dueday.icons/upload.png" alt="Upload" class="btn-icon">
+                            <span>Upload a file</span>
+                        </button>
+                        <span class="file-name">No file chosen</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Max Marks:</label>
+                    <input type="text" class="form-input" placeholder="Enter marks">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Instruction:</label>
+                    <input type="text" class="form-input" placeholder="Enter instruction">
+                </div>
+                
+                <button class="publish-btn">
+                    <img src="dueday.icons/publish.svg" alt="Publish" class="btn-icon">
+                    <span>Publish</span>
+                </button>
+            </div>
+
+            <!-- Assignment View Section (Initially hidden) -->
+            <div class="assignment-view">
+                <h1 class="section-title">ASSIGNMENTS</h1>
+                
+                <!-- Assignment Card 1 -->
+                <div class="assignment-card">
+                    <div class="assignment-header">
+                        <h2 class="assignment-title">ICS 2102 - Web Application Development</h2>
+                        <div class="assignment-due">
+                            <span class="due-date">Due Apr 20 @ 11.50pm</span>
+                            <span class="countdown">2 days 4 hours remaining</span>
+                        </div>
+                    </div>
+                    
+                    <div class="assignment-body">
+                        <p class="assignment-description">
+                            <strong>Description:</strong> Make a recipe website using the information you have learned in class
+                        </p>
+                        <p class="assignment-instructions">
+                            <strong>Instructions:</strong> Create a repository on github and use this to upload the files you have used in your project
+                        </p>
+                        
+                        <div class="assignment-actions">
+                            <button class="action-btn submit-btn">
+                                <img src="dueday.icons/upload.png" alt="Submit" class="btn-icon">
+                                <span>Submit Work</span>
+                            </button>
+                            <button class="action-btn comment-btn">
+                                <img src="dueday.icons/comment.svg" alt="Comment" class="btn-icon">
+                                <span>Ask/Comment</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Comment Section (Initially hidden) -->
+                    <div class="comment-section hidden">
+                        <h3 class="comment-title">Comment Threads:</h3>
+                        <div class="comment-thread">
+                            <div class="comment">
+                                <span class="comment-author">You:</span>
+                                <span class="comment-text">Can I submit as a Word doc?</span>
+                            </div>
+                            <div class="comment">
+                                <span class="comment-author">William Kiprop:</span>
+                                <span class="comment-text">Should we use our email to create the Github account</span>
+                            </div>
+                        </div>
+                        
+                        <div class="new-comment">
+                            <textarea class="comment-input" placeholder="Type your comment here..."></textarea>
+                            <button class="post-comment-btn">Post Comment</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Assignment Card 2 -->
+                <div class="assignment-card">
+                    <div class="assignment-header">
+                        <h2 class="assignment-title">ICS 2104 - OOP Project</h2>
+                        <div class="assignment-due">
+                            <span class="due-date">Due May 5 @ 5.00pm</span>
+                            <span class="countdown">17 days 9 hours remaining</span>
+                        </div>
+                    </div>
+                    
+                    <div class="assignment-body">
+                        <p class="assignment-description">
+                            <strong>Description:</strong> Develop an object-oriented application using Java
+                        </p>
+                        <p class="assignment-instructions">
+                            <strong>Instructions:</strong> Submit your .zip file containing all source code and documentation
+                        </p>
+                        
+                        <div class="assignment-actions">
+                            <button class="action-btn submit-btn">
+                                <img src="dueday.icons/upload.png" alt="Submit" class="btn-icon">
+                                <span>Submit Work</span>
+                            </button>
+                            <button class="action-btn comment-btn">
+                                <img src="dueday.icons/comment.svg" alt="Comment" class="btn-icon">
+                                <span>Ask/Comment</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Comment Section (Initially hidden) -->
+                    <div class="comment-section hidden">
+                        <h3 class="comment-title">Comment Threads:</h3>
+                        <div class="comment-thread">
+                            <!-- Comments would appear here -->
+                        </div>
+                        
+                        <div class="new-comment">
+                            <textarea class="comment-input" placeholder="Type your comment here..."></textarea>
+                            <button class="post-comment-btn">Post Comment</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submission Modal (Hidden by default) -->
+    <div class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Submit Assignment</h2>
+            <div class="submission-form">
+                <div class="form-group">
+                    <label>Upload Files:</label>
+                    <input type="file" id="file-upload" multiple>
+                </div>
+                <div class="form-group">
+                    <label>Additional Notes:</label>
+                    <textarea class="notes-input" placeholder="Add any notes for your submission..."></textarea>
+                </div>
+                <button class="submit-assignment-btn">Submit Assignment</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assignment.js"></script>
+</body>
+</html>

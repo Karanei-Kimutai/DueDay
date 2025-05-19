@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DUEDAY - Polls Management</title>
+    <link rel="stylesheet" href="poll.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="logo">
+                <img src="dueday.icons/dueday.png" alt="DUEDAY Logo" class="logo-icon">
+                <span>DUEDAY</span>
+            </div>
+            <ul class="nav-menu">
+  <li class="nav-item">
+    <a href="home.html">
+      <img src="dueday.icons/home.png" alt="Home" class="nav-icon">
+      <span>Home</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a href="assignment.html">
+      <img src="dueday.icons/assignment.png" alt="Assignments" class="nav-icon">
+      <span>Assignments</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a href="poll.html">
+      <img src="dueday.icons/poll.png" alt="Polls" class="nav-icon">
+      <span>Polls</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a href="event.html">
+      <img src="dueday.icons/event.png" alt="Events" class="nav-icon">
+      <span>Events</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a href="timetable.html">
+      <img src="dueday.icons/table.png" alt="Timetable" class="nav-icon">
+      <span>Timetable</span>
+    </a>
+  </li>
+</ul>
+
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="welcome-header">
+                <div class="poll-actions">
+                    <button class="create-btn" id="showCreatePoll">
+                        <img src="dueday.icons/poll.png" alt="Create Poll" class="btn-icon">
+                        <span>Create Poll</span>
+                    </button>
+                    <button class="view-btn" id="showViewPolls">
+                        <img src="dueday.icons/view.svg" alt="View Polls" class="btn-icon">
+                        <span>View Polls</span>
+                    </button>
+                </div>
+                <div class="profile-section">
+                    <div class="welcome-message">Welcome, Natalie</div>
+                    <img src="dueday.icons/admin.png" alt="Module Leader" class="profile-icon">
+                </div>
+            </div>
+
+            <!-- Poll Creation Section -->
+            <div class="poll-create-section">
+                <h1 class="section-title">Create New Poll</h1>
+                
+                <div class="poll-form">
+                    <div class="form-group">
+                        <label>Poll Title:</label>
+                        <input type="text" id="pollTitle" class="form-input" placeholder="Enter poll title">
+                    </div>
+                    <div class="form-group">
+                        <label>Description (Optional):</label>
+                        <textarea id="pollDescription" class="form-input" placeholder="Enter description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Course/Module:</label>
+                        <select id="pollCourse" class="form-input">
+                            <option value="">Select a course</option>
+                            <option value="ICS 2101">ICS 2101 - Web Development</option>
+                            <option value="ICS 2102">ICS 2102 - Object-Oriented Programming</option>
+                            <option value="ICS 2103">ICS 2103 - Database Systems</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Expiry Date/Time:</label>
+                        <input type="datetime-local" id="pollExpiry" class="form-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Poll Options:</label>
+                        <div id="pollOptionsContainer">
+                            <div class="poll-option">
+                                <input type="text" class="option-input" placeholder="Option 1">
+                                <button class="remove-option-btn">&times;</button>
+                            </div>
+                            <div class="poll-option">
+                                <input type="text" class="option-input" placeholder="Option 2">
+                                <button class="remove-option-btn">&times;</button>
+                            </div>
+                        </div>
+                        <button id="addOptionBtn" class="add-option-btn">+ Add Option</button>
+                    </div>
+                    
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="anonymousPoll">
+                        <label for="anonymousPoll">Anonymous Poll</label>
+                    </div>
+                    
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="multipleChoices">
+                        <label for="multipleChoices">Allow Multiple Choices</label>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button id="cancelPollBtn" class="cancel-btn">Cancel</button>
+                        <button id="createPollSubmit" class="publish-btn">Create Poll</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Polls View Section -->
+            <div class="polls-view-section">
+                <h1 class="section-title">Active Polls</h1>
+                
+                <!-- Poll Card 1 -->
+                <div class="poll-card active">
+                    <div class="poll-header">
+                        <h2 class="poll-title">OOP Feedback</h2>
+                        <div class="poll-meta">
+                            <span class="poll-class">ICS 2102</span>
+                            <span class="poll-status">Active</span>
+                            <span class="poll-expiry">Ends in 2 days</span>
+                        </div>
+                    </div>
+                    
+                    <div class="poll-body">
+                        <p class="poll-description">We want your input on the test structure.</p>
+                        
+                        <div class="poll-options">
+                            <div class="poll-option">
+                                <input type="radio" name="oopFeedback" id="option1">
+                                <label for="option1">Too Hard</label>
+                            </div>
+                            <div class="poll-option">
+                                <input type="radio" name="oopFeedback" id="option2">
+                                <label for="option2">Fair</label>
+                            </div>
+                            <div class="poll-option">
+                                <input type="radio" name="oopFeedback" id="option3">
+                                <label for="option3">Going Well</label>
+                            </div>
+                        </div>
+                        
+                        <div class="poll-actions">
+                            <button class="action-btn submit-vote-btn">Submit Vote</button>
+                            <button class="action-btn view-results-btn">View Results</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Poll Card 2 -->
+                <div class="poll-card">
+                    <div class="poll-header">
+                        <h2 class="poll-title">Preferred IDE</h2>
+                        <div class="poll-meta">
+                            <span class="poll-class">ICS 2101</span>
+                            <span class="poll-status expired">Closed</span>
+                            <span class="poll-expiry">Ended 3 days ago</span>
+                        </div>
+                    </div>
+                    
+                    <div class="poll-body">
+                        <p class="poll-description">Which IDE do you prefer for web development?</p>
+                        
+                        <div class="poll-options">
+                            <div class="poll-option">
+                                <input type="radio" name="idePreference" id="option4" disabled>
+                                <label for="option4">VS Code</label>
+                            </div>
+                            <div class="poll-option">
+                                <input type="radio" name="idePreference" id="option5" disabled>
+                                <label for="option5">WebStorm</label>
+                            </div>
+                            <div class="poll-option">
+                                <input type="radio" name="idePreference" id="option6" disabled>
+                                <label for="option6">Sublime Text</label>
+                            </div>
+                            <div class="poll-option">
+                                <input type="radio" name="idePreference" id="option7" disabled>
+                                <label for="option7">Atom</label>
+                            </div>
+                        </div>
+                        
+                        <div class="poll-actions">
+                            <button class="action-btn view-results-btn">View Results</button>
+                            <button class="action-btn edit-poll-btn">Edit Poll</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Poll Card 3 - New Computer Science Poll -->
+                <div class="poll-card active">
+                    <div class="poll-header">
+                        <h2 class="poll-title">Programming Language Preference</h2>
+                        <div class="poll-meta">
+                            <span class="poll-class">CS 101</span>
+                            <span class="poll-status">Active</span>
+                            <span class="poll-expiry">Ends in 5 days</span>
+                        </div>
+                    </div>
+                    
+                    <div class="poll-body">
+                        <p class="poll-description">Which programming language do you enjoy working with most?</p>
+                        
+                        <div class="poll-options">
+                            <div class="poll-option">
+                                <input type="radio" name="languagePreference" id="option8">
+                                <label for="option8">JavaScript</label>
+                            </div>
+                            <div class="poll-option">
+                                <input type="radio" name="languagePreference" id="option9">
+                                <label for="option9">Python</label>
+                            </div>
+                            <div class="poll-option">
+                                <input type="radio" name="languagePreference" id="option10">
+                                <label for="option10">Java</label>
+                            </div>
+                            <div class="poll-option">
+                                <input type="radio" name="languagePreference" id="option11">
+                                <label for="option11">C++</label>
+                            </div>
+                        </div>
+                        
+                        <div class="poll-actions">
+                            <button class="action-btn submit-vote-btn">Submit Vote</button>
+                            <button class="action-btn view-results-btn">View Results</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div class="modal" id="resultsModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="resultsTitle">Poll Results</h2>
+            <div class="results-container" id="resultsContainer">
+                <!-- Results will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="poll.js"></script>
+</body>
+</html>
