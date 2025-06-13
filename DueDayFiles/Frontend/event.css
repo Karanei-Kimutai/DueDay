@@ -1,0 +1,151 @@
+:root {
+    --egyptian-blue: #1034A6;
+    --egyptian-blue-light: #2a4cb3;
+    --light-gray: #f5f5f5;
+    --medium-gray: #e0e0e0;
+    --dark-gray: #333333;
+    --white: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--light-gray);
+    color: var(--dark-gray);
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 220px;
+    background-color: var(--egyptian-blue);
+    color: var(--white);
+    padding: 20px 0;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    padding: 0 15px;
+}
+
+.logo-icon {
+    height: 30px;
+    width: auto;
+    margin-right: 10px;
+}
+
+.nav-menu {
+    list-style: none;
+}
+
+.nav-item a {
+    display: flex;
+    align-items: center;
+    padding: 23px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+
+.nav-item a:hover {
+    background-color: var(--egyptian-blue-light);
+}
+
+.nav-icon {
+    height: 18px;
+    width: auto;
+    margin-right: 12px;
+    filter: brightness(0) invert(1);
+}
+
+/* Main Content Area */
+.main-content {
+    flex: 1;
+    padding: 30px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.welcome-text h1 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.welcome-text p {
+    font-size: 18px;
+    color: #555;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-name {
+    font-size: 18px;
+}
+
+.profile-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--dark-gray);
+}
+
+/* Events List Styles */
+.events-list {
+    background-color: var(--white);
+    border-radius: 8px;
+    padding: 20px 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.event-item {
+    margin: 20px 0;
+}
+
+.event-item p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.event-item p strong {
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+.event-divider {
+    border: 0;
+    height: 1px;
+    background-color: var(--medium-gray);
+    margin: 20px 0;
+}
