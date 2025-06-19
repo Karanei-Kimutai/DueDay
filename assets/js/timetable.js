@@ -9,33 +9,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const nextDayBtn = document.querySelector('.next-day');
 
     // --- DATA & STATE ---
-    // Reads schedule data embedded in the timetable.php file by the server
     const scheduleDataEl = document.getElementById('schedule-data');
+    if (!scheduleDataEl) {
+        console.error('Schedule data element not found!');
+        return;
+    }
     const scheduleData = JSON.parse(scheduleDataEl.textContent || '{}');
     const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    let currentDayIndex = new Date().getDay(); // Start with today
+    let currentDayIndex = new Date().getDay(); // JS standard: 0=Sun, 1=Mon...
 
     /**
-     * Renders the schedule for a given day index (0=Sun, 1=Mon, etc.)
-     * @param {number} dayIndex - The index of the day to display.
+     * Renders the schedule for a given day index.
      */
     function renderDailySchedule(dayIndex) {
         if (!dailyScheduleContainer || !currentDayEl) return;
 
-        // Clear previous content
         dailyScheduleContainer.innerHTML = '';
         currentDayEl.textContent = dayNames[dayIndex];
         
-        const dayKey = dayIndex + 1; // Database uses 1-7 for DayOfWeek
+        // Map JS day index (0-6) to DB day key (1-7)
+        const dayKey = dayIndex + 1; 
 
         if (scheduleData[dayKey] && scheduleData[dayKey].length > 0) {
             scheduleData[dayKey].forEach(cls => {
                 const card = document.createElement('div');
-                card.className = 'class-block'; // Use the same class as the weekly view for consistency
+                card.className = 'class-block'; // Use the same styling
+                
+                const startTime = new Date(`1970-01-01T${cls.Start_Time}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const endTime = new Date(`1970-01-01T${cls.End_Time}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
                 card.innerHTML = `
-                    <div class="block-time">${new Date('1970-01-01T' + cls.TimeOnly).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                    <div class="block-title">${cls.Class_Name}</div>
-                    <div class="block-meta">${cls.Venue_Name}</div>
+                    <strong>${startTime} - ${endTime}</strong><br>
+                    ${cls.Class_Name}<br>
+                    <small>${cls.Venue_Name}</small>
                 `;
                 dailyScheduleContainer.appendChild(card);
             });
@@ -45,37 +51,46 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * Sets up all event listeners for the page.
+     * Sets up all event listeners.
      */
     function initializeTimetable() {
-        // --- View Switching Logic ---
-        if (switchViewBtn && dailyView && weeklyView) {
-            weeklyView.style.display = 'none'; // Default to daily view
-            switchViewBtn.addEventListener('click', () => {
-                const isDailyView = dailyView.style.display !== 'none';
-                dailyView.style.display = isDailyView ? 'none' : 'block';
-                weeklyView.style.display = isDailyView ? 'block' : 'none';
-                switchViewBtn.textContent = isDailyView ? 'Day View' : 'Week View';
-            });
-        }
+        if (!switchViewBtn || !dailyView || !weeklyView) return;
 
-        // --- Day Navigation Logic ---
+        // Default state: show weekly view
+        weeklyView.style.display = 'grid'; // Use 'grid' as defined in your CSS
+        dailyView.style.display = 'none';
+        switchViewBtn.textContent = 'Day View';
+
+        // View Switching Logic
+        switchViewBtn.addEventListener('click', () => {
+            const isWeeklyViewVisible = weeklyView.style.display !== 'none';
+            if (isWeeklyViewVisible) {
+                weeklyView.style.display = 'none';
+                dailyView.style.display = 'block';
+                switchViewBtn.textContent = 'Week View';
+            } else {
+                weeklyView.style.display = 'grid';
+                dailyView.style.display = 'none';
+                switchViewBtn.textContent = 'Day View';
+            }
+        });
+
+        // Day Navigation Logic
         if (prevDayBtn && nextDayBtn) {
             prevDayBtn.addEventListener('click', () => {
-                currentDayIndex = (currentDayIndex - 1 + 7) % 7;
+                currentDayIndex = (currentDayIndex - 1 + 7) % 7; // Cycle backwards
                 renderDailySchedule(currentDayIndex);
             });
 
             nextDayBtn.addEventListener('click', () => {
-                currentDayIndex = (currentDayIndex + 1) % 7;
+                currentDayIndex = (currentDayIndex + 1) % 7; // Cycle forwards
                 renderDailySchedule(currentDayIndex);
             });
         }
         
-        // Initial render for the current day
+        // Initial render for the daily view (so it's ready when toggled)
         renderDailySchedule(currentDayIndex);
     }
 
-    // Run the initializer
     initializeTimetable();
 });

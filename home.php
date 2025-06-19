@@ -1,18 +1,37 @@
 <?php
 require_once 'templates/header.php';
 
+// --- ADMIN NOTICE BANNER ---
+if (isset($user_role) && $user_role === 'Admin'): 
+?>
+<div class="admin-notice-banner">
+    <p>You are logged in as an Administrator.</p>
+    <a href="admin/admin_dashboard.php" class="btn">Go to Admin Dashboard</a>
+</div>
+<?php 
+endif; 
+
+// --- FIX: Get today's day of the week based on the PHP timezone we set in header.php ---
+// PHP's date('w') is 0-6 (Sun-Sat). MySQL's DAYOFWEEK() is 1-7 (Sun-Sat). We add 1 to match.
+$todays_day_of_week = date('w') + 1;
+
+
 // --- DATA FETCHING FOR WIDGETS ---
 // Stat Cards
 $assignment_count = $conn->query("SELECT COUNT(*) as count FROM Assignments WHERE Assignment_DueDate >= NOW()")->fetch_assoc()['count'];
 $poll_count = $conn->query("SELECT COUNT(*) as count FROM Polls WHERE Expires_At >= NOW()")->fetch_assoc()['count'];
-$stmt_class_count = $conn->prepare("SELECT COUNT(DISTINCT uc.Class_ID) as count FROM user_classes uc JOIN class_schedule cs ON uc.Class_ID = cs.Class_ID WHERE uc.User_ID = ? AND DATE(cs.Class_Time) = CURDATE()");
-$stmt_class_count->bind_param("i", $user_id);
+
+// --- FIX: This query now uses a placeholder '?' for the day of the week ---
+$stmt_class_count = $conn->prepare("SELECT COUNT(DISTINCT uc.Class_ID) as count FROM user_classes uc JOIN class_schedule cs ON uc.Class_ID = cs.Class_ID WHERE uc.User_ID = ? AND cs.Day_Of_Week = ?");
+// --- FIX: Bind the PHP-calculated day of the week to the query ---
+$stmt_class_count->bind_param("ii", $user_id, $todays_day_of_week);
 $stmt_class_count->execute();
 $class_count = $stmt_class_count->get_result()->fetch_assoc()['count'];
 $stmt_class_count->close();
+
 $unread_comments = 0; // Placeholder
 
-// Units You're Involved In (with status)
+// Units You're Involved In
 $units_with_status_sql = "SELECT c.Class_ID, c.Class_Name, (SELECT COUNT(*) FROM Assignments a WHERE a.Class_ID = c.Class_ID AND a.Assignment_DueDate >= NOW()) as pending_assignments, (SELECT COUNT(*) FROM Polls p WHERE p.Class_ID = c.Class_ID AND p.Expires_At >= NOW()) as active_polls FROM Classes c JOIN User_Classes uc ON c.Class_ID = uc.Class_ID WHERE uc.User_ID = ?";
 $stmt_units = $conn->prepare($units_with_status_sql);
 $stmt_units->bind_param("i", $user_id);
@@ -21,9 +40,17 @@ $user_units = $stmt_units->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt_units->close();
 
 // Today's Classes Widget
-$todays_classes_sql = "SELECT TIME(cs.Class_Time) as time, c.Class_Name, v.Venue_Name FROM Class_Schedule cs JOIN Classes c ON cs.Class_ID = c.Class_ID JOIN Venues v ON cs.Venue_ID = v.Venue_ID JOIN User_Classes uc ON c.Class_ID = uc.Class_ID WHERE uc.User_ID = ? AND DATE(cs.Class_Time) = CURDATE() ORDER BY time ASC";
+// --- FIX: This query also uses a placeholder '?' for the day of the week ---
+$todays_classes_sql = "SELECT cs.Start_Time, cs.End_Time, c.Class_Name, v.Venue_Name 
+                       FROM Class_Schedule cs 
+                       JOIN Classes c ON cs.Class_ID = c.Class_ID 
+                       JOIN Venues v ON cs.Venue_ID = v.Venue_ID 
+                       JOIN User_Classes uc ON c.Class_ID = uc.Class_ID 
+                       WHERE uc.User_ID = ? AND cs.Day_Of_Week = ? 
+                       ORDER BY cs.Start_Time ASC";
 $stmt_today = $conn->prepare($todays_classes_sql);
-$stmt_today->bind_param("i", $user_id);
+// --- FIX: Bind the PHP-calculated day of the week here as well ---
+$stmt_today->bind_param("ii", $user_id, $todays_day_of_week);
 $stmt_today->execute();
 $todays_classes = $stmt_today->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt_today->close();
@@ -71,30 +98,51 @@ $stmt_notifications->close();
 
     <div class="card list-widget">
         <h2 class="section-title">Today's Classes</h2>
-        <?php if(empty($todays_classes)): ?><p>No classes scheduled for today.</p><?php else: ?>
-            <ul><?php foreach($todays_classes as $class): ?>
-                <li><?php echo date('h:i A', strtotime($class['time'])); ?> - <?php echo htmlspecialchars($class['Class_Name']); ?> (<?php echo htmlspecialchars($class['Venue_Name']); ?>)</li>
-            <?php endforeach; ?></ul>
+        <?php if(empty($todays_classes)): ?><p class="widget-empty-msg">No classes scheduled for today.</p><?php else: ?>
+            <ul class="widget-list">
+                <?php foreach($todays_classes as $class): ?>
+                <li class="widget-list-item">
+                    <div class="item-content">
+                        <span class="item-title"><?php echo htmlspecialchars($class['Class_Name']); ?></span>
+                        <span class="item-meta"><?php echo htmlspecialchars($class['Venue_Name']); ?></span>
+                    </div>
+                    <span class="item-time"><?php echo date('h:i A', strtotime($class['Start_Time'])); ?></span>
+                </li>
+                <?php endforeach; ?>
+            </ul>
         <?php endif; ?>
         <a href="timetable.php" class="list-widget-link">Go to Timetable</a>
     </div>
 
     <div class="card list-widget">
         <h2 class="section-title">Assignments Due</h2>
-        <?php if(empty($assignments_due)): ?><p>No upcoming assignments.</p><?php else: ?>
-            <ul><?php foreach($assignments_due as $assignment): ?>
-                <li><?php echo htmlspecialchars($assignment['Assignment_Title']); ?> – <?php echo format_due_date($assignment['Assignment_DueDate']); ?></li>
-            <?php endforeach; ?></ul>
+        <?php if(empty($assignments_due)): ?><p class="widget-empty-msg">No upcoming assignments.</p><?php else: ?>
+            <ul class="widget-list">
+                <?php foreach($assignments_due as $assignment): ?>
+                <li class="widget-list-item">
+                    <div class="item-content">
+                        <span class="item-title"><?php echo htmlspecialchars($assignment['Assignment_Title']); ?></span>
+                        <span class="item-meta status-due"><?php echo format_due_date($assignment['Assignment_DueDate']); ?></span>
+                    </div>
+                </li>
+                <?php endforeach; ?>
+            </ul>
         <?php endif; ?>
         <a href="assignment.php" class="list-widget-link">View All Assignments</a>
     </div>
 
     <div class="card list-widget">
         <h2 class="section-title">Notifications</h2>
-        <?php if(empty($notifications)): ?><p>No new notifications.</p><?php else: ?>
-            <ul><?php foreach($notifications as $notification): ?>
-                <li>[!] <?php echo htmlspecialchars($notification['Notification_Content']); ?></li>
-            <?php endforeach; ?></ul>
+        <?php if(empty($notifications)): ?><p class="widget-empty-msg">No new notifications.</p><?php else: ?>
+            <ul class="widget-list">
+                <?php foreach($notifications as $notification): ?>
+                <li class="widget-list-item">
+                    <div class="item-content">
+                        <span class="item-title"><?php echo htmlspecialchars($notification['Notification_Content']); ?></span>
+                    </div>
+                </li>
+                <?php endforeach; ?>
+            </ul>
         <?php endif; ?>
     </div>
 </div>

@@ -19,11 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // Fetch all users for display
 $users = $conn->query("SELECT u.User_ID, u.F_Name, u.L_Name, u.Email, u.status, r.Role_Name FROM Users u JOIN Role r ON u.Role_ID = r.Role_ID ORDER BY u.User_ID ASC")->fetch_all(MYSQLI_ASSOC);
-$conn->close();
 ?>
-<head>
-    <title>Manage Users - Admin</title>
-</head>
 
 <h1 class="page-title">User Management</h1>
 <div class="management-section">

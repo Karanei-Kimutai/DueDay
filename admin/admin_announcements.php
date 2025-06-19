@@ -1,20 +1,40 @@
 <?php
-require_once 'templates/header.php';
+require_once 'templates/header.php'; // The header already includes the main <head> tag
 
 $message = '';
+$message_type = 'error'; // Default to error
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'send_global_announcement') {
     $title = $_POST['announcement_title'];
     $description = $_POST['announcement_description'];
-    $priority_id = $_POST['announcement_priority'];
+    $notification_content = $title . ": " . $description;
 
     $conn->begin_transaction();
     try {
-        $stmt_announce = $conn->prepare("INSERT INTO Announcements (Announcement_Title, Announcement_Description, Announcement_Priority, Creator_User_ID) VALUES (?, ?, ?, ?)");
-        $stmt_announce->bind_param("ssii", $title, $description, $priority_id, $_SESSION['user_id']);
-        $stmt_announce->execute();
+        // 1. Insert the main notification record
+        $stmt_notification = $conn->prepare("INSERT INTO Notifications (Notification_Content, Notification_Date) VALUES (?, NOW())");
+        $stmt_notification->bind_param("s", $notification_content);
+        $stmt_notification->execute();
+
+        // 2. Get the ID of the notification we just created
+        $notification_id = $conn->insert_id;
+
+        // 3. Get all user IDs to send the notification to
+        $users_result = $conn->query("SELECT User_ID FROM Users");
+        $user_ids = $users_result->fetch_all(MYSQLI_ASSOC);
+        
+        // 4. Prepare and execute the link for each user
+        $stmt_user_notification = $conn->prepare("INSERT INTO Notification_User (Notification_ID, User_ID) VALUES (?, ?)");
+        foreach ($user_ids as $user) {
+            $stmt_user_notification->bind_param("ii", $notification_id, $user['User_ID']);
+            $stmt_user_notification->execute();
+        }
+
+        // If everything worked, commit the changes
         $conn->commit();
-        $message = "Announcement sent successfully!";
+        $message = "Announcement sent successfully to all users!";
+        $message_type = "success";
+
     } catch (mysqli_sql_exception $exception) {
         $conn->rollback();
         $message = "Error: Could not send announcement.";
@@ -22,18 +42,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'send_
 }
 
 $priorities = $conn->query("SELECT * FROM Priority ORDER BY Priority_ID ASC")->fetch_all(MYSQLI_ASSOC);
-$conn->close();
 ?>
-<head>
-    <title>Global Announcements - Admin</title>
-</head>
 
 <h1 class="page-title">Global Announcements</h1>
-<p class="page-subtitle">Create and send an announcement to every user in the system.</p>
 
 <div class="management-section">
     <?php if ($message): ?>
-        <p class="message-banner"><?php echo $message; ?></p>
+        <p class="message-banner <?php echo $message_type; ?>"><?php echo $message; ?></p>
     <?php endif; ?>
     <form method="POST" action="admin_announcements.php">
         <input type="hidden" name="action" value="send_global_announcement">

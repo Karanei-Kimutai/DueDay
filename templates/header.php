@@ -1,4 +1,7 @@
 <?php
+// Set the default timezone to Africa/Nairobi for all date/time functions
+date_default_timezone_set('Africa/Nairobi');
+// --------------------
 require_once __DIR__ . '/../core/init.php';
 
 // --- CONFIGURATION & PAGE DATA ---

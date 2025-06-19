@@ -443,3 +443,106 @@ body {
 .remove-option-btn:hover {
     background-color: #a8272f; /* Darker red on hover */
 }
+/*
+ * Admin Notice Banner Styling
+ * This styles the banner that is only visible to administrators on the homepage.
+ */
+.admin-notice-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: #e6f7ff; /* A light blue background */
+    border: 1px solid #91d5ff;  /* A matching border color */
+    border-radius: 8px;
+    color: #0050b3; /* Darker blue text for contrast */
+}
+
+.admin-notice-banner p {
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Make it responsive for smaller screens */
+@media (max-width: 768px) {
+    .admin-notice-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+}
+
+/* ==========================================================================
+   NEW WIDGET LIST STYLES
+   ========================================================================== */
+.list-widget .widget-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.widget-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5px;
+    border-bottom: 1px solid var(--light-gray);
+    transition: background-color 0.2s ease;
+}
+
+.widget-list-item:last-child {
+    border-bottom: none;
+}
+
+.widget-list-item:hover {
+    background-color: #f9f9f9;
+}
+
+.item-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.item-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.item-meta {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.item-time {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--egyptian-blue);
+    flex-shrink: 0;
+    margin-left: 15px;
+}
+
+.status-due {
+    font-weight: 500;
+    color: var(--danger);
+}
+
+.widget-empty-msg {
+    color: var(--text-secondary);
+    padding: 20px 0;
+    text-align: center;
+}
+
+.list-widget-link {
+    display: block;
+    text-align: right;
+    margin-top: 15px;
+    font-weight: 600;
+    color: var(--egyptian-blue);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+.list-widget-link:hover {
+    text-decoration: underline;
+}

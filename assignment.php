@@ -75,8 +75,8 @@ while ($row = $result_subs->fetch_assoc()) { $user_submissions[$row['Assignment_
             <div class="card__body"><p><?php echo nl2br(htmlspecialchars($assignment['Assignment_Description'])); ?></p><div class="due-date"><strong>Due:</strong> <?php echo date('M d, Y @ g:ia', strtotime($assignment['Assignment_DueDate'])); ?></div></div>
             <div class="card__footer">
                 <?php if ($is_module_leader): ?><a href="view_submissions.php?id=<?php echo $assignment['Assignment_ID']; ?>" class="btn btn--primary">View Submissions (<?php echo $assignment['submission_count']; ?>)</a>
-                <?php else: if (array_key_exists($assignment['Assignment_ID'], $user_submissions)): ?><a href="<?php echo htmlspecialchars($user_submissions[$assignment['Assignment_ID']]); ?>" class="btn btn--success" target="_blank">View Submission</a><button class="btn" data-modal-target="submissionModal" data-assignment-id="<?php echo $assignment['Assignment_ID']; ?>">Resubmit</button>
-                <?php else: ?><button class="btn btn--primary" data-modal-target="submissionModal" data-assignment-id="<?php echo $assignment['Assignment_ID']; ?>">Submit Work</button><?php endif; endif; ?>
+                <?php else: if (array_key_exists($assignment['Assignment_ID'], $user_submissions)): ?><a href="<?php echo htmlspecialchars($user_submissions[$assignment['Assignment_ID']]); ?>" class="btn btn--success" target="_blank">View Submission</a><button class="btn submit-work-btn" data-modal-target="submissionModal" data-assignment-id="<?php echo $assignment['Assignment_ID']; ?>">Resubmit</button>
+                <?php else: ?><button class="btn btn--primary submit-work-btn" data-modal-target="submissionModal" data-assignment-id="<?php echo $assignment['Assignment_ID']; ?>">Submit Work</button><?php endif; endif; ?>
             </div>
         </div>
     <?php endforeach; endif; ?>

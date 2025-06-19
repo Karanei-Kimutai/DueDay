@@ -18,11 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $venues = $conn->query("SELECT * FROM Venues ORDER BY Venue_Name ASC")->fetch_all(MYSQLI_ASSOC);
-$conn->close();
 ?>
-<head>
-    <title>Manage Venues - Admin</title>
-</head>
 
 <h1 class="page-title">Manage Venues</h1>
 <div class="widget">

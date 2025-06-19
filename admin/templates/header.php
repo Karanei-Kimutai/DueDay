@@ -1,12 +1,25 @@
 <?php
+
+// Set the default timezone to Africa/Nairobi for all date/time functions
+date_default_timezone_set('Africa/Nairobi');
+// --------------------
 // Correctly navigate two directories up to find the core folder
 require_once __DIR__ . '/../../core/init.php';
 
-// Security check: Must be a logged-in Admin to access any of these pages
-if (!isset($_SESSION['user_id']) || $_SESSION['role_name'] !== 'Admin') {
+// --- NEW FLEXIBLE SECURITY CHECK ---
+// Define default roles that can access the admin panel.
+$admin_roles = ['Admin'];
+
+// Allow a specific page to define its own list of allowed roles.
+// If the page doesn't define $allowed_roles, it will use the default $admin_roles.
+$effective_allowed_roles = $allowed_roles ?? $admin_roles;
+
+// Security check: If user is not logged in OR their role is not in the allowed list, redirect.
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role_name'], $effective_allowed_roles)) {
     header("Location: ../auth/login.php"); // Redirect to login if not authorized
     exit();
 }
+// --- END NEW SECURITY CHECK ---
 
 // Get admin data for display
 $admin_name = $_SESSION['user_fname'] ?? 'Admin';
@@ -37,6 +50,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 </li>
                 <li class="<?php if ($current_page == 'admin_classes.php') echo 'active'; ?>">
                     <a href="admin_classes.php">Classes</a>
+                </li>
+                 <li class="<?php if ($current_page == 'admin_enroll_students.php') echo 'active'; ?>">
+                    <a href="admin_enroll_students.php">Enrollment</a>
+                </li>
+                <li class="<?php if ($current_page == 'admin_manage_schedule.php') echo 'active'; ?>">
+                    <a href="admin_manage_schedule.php">Master Schedule</a>
                 </li>
                 <li class="<?php if ($current_page == 'admin_announcements.php') echo 'active'; ?>">
                     <a href="admin_announcements.php">Announcements</a>

@@ -1,41 +1,26 @@
 <?php
-// --- LOGIC ---
-require_once 'templates/header.php'; // Includes connection, session, security, and sidebar
+require_once 'templates/header.php'; 
 
-// Handle form submissions for adding or deleting classes
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
-    
-    // Action to add a new class
     if ($action === 'add_class' && !empty($_POST['class_name'])) {
         $stmt = $conn->prepare("INSERT INTO Classes (Class_Name) VALUES (?)");
         $stmt->bind_param("s", $_POST['class_name']);
         $stmt->execute();
         $stmt->close();
     }
-
-    // Action to delete an existing class
     if ($action === 'delete_class' && !empty($_POST['class_id'])) {
         $stmt = $conn->prepare("DELETE FROM Classes WHERE Class_ID = ?");
         $stmt->bind_param("i", $_POST['class_id']);
         $stmt->execute();
         $stmt->close();
     }
-
-    // Redirect to the same page to prevent form resubmission
     header("Location: admin_classes.php");
     exit();
 }
 
-// Fetch all existing classes to display in the list
 $classes = $conn->query("SELECT * FROM Classes ORDER BY Class_Name ASC")->fetch_all(MYSQLI_ASSOC);
-$conn->close();
-
-// --- PRESENTATION ---
 ?>
-<head>
-    <title>Manage Classes - Admin</title>
-</head>
 
 <h1 class="page-title">Manage Classes</h1>
 

@@ -2,20 +2,26 @@
 require_once 'templates/header.php';
 $is_module_leader = ($user_role === 'Module Leader');
 
-// --- POST REQUEST HANDLING (No changes needed) ---
+// --- POST REQUEST HANDLING ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     if ($action === 'create_poll' && $is_module_leader) {
         $conn->begin_transaction();
         try {
             $stmt = $conn->prepare("INSERT INTO Polls (Poll_Title, Poll_Description, Class_ID, Expires_At, Status, Is_Anonymous, Allow_Multiple_Choices) VALUES (?, ?, ?, ?, 'Active', ?, ?)");
-            $stmt->bind_param("ssissii", $_POST['poll_title'], $_POST['poll_description'], $_POST['class_id'], $_POST['poll_expiry'], (isset($_POST['is_anonymous']) ? 1 : 0), (isset($_POST['allow_multiple']) ? 1 : 0));
+            
+            $is_anonymous = isset($_POST['is_anonymous']) ? 1 : 0;
+            $allow_multiple = isset($_POST['allow_multiple']) ? 1 : 0;
+            
+            // --- FIX: Corrected the type string from "ssisiii" (7 chars) to "ssisii" (6 chars) ---
+            $stmt->bind_param("ssisii", $_POST['poll_title'], $_POST['poll_description'], $_POST['class_id'], $_POST['poll_expiry'], $is_anonymous, $allow_multiple);
+            
             $stmt->execute();
             $poll_id = $conn->insert_id;
             $stmt_options = $conn->prepare("INSERT INTO Poll_Options (Poll_ID, Option_Text) VALUES (?, ?)");
             foreach ($_POST['options'] as $option_text) { if (!empty(trim($option_text))) { $stmt_options->bind_param("is", $poll_id, $option_text); $stmt_options->execute(); } }
             $conn->commit();
-        } catch (mysqli_sql_exception $e) { $conn->rollback(); }
+        } catch (mysqli_sql_exception $e) { $conn->rollback(); error_log($e->getMessage()); }
         header("Location: poll.php?created=success");
         exit();
     }
@@ -34,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// --- DATA FETCHING (No changes needed) ---
+// --- DATA FETCHING ---
 $all_classes = $conn->query("SELECT * FROM Classes ORDER BY Class_Name")->fetch_all(MYSQLI_ASSOC);
 $user_voted_polls = [];
 $stmt_votes = $conn->prepare("SELECT DISTINCT Poll_ID FROM Poll_Data WHERE User_ID = ?");
