@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 20, 2025 at 12:11 AM
+-- Generation Time: Jun 20, 2025 at 07:33 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -453,7 +453,8 @@ INSERT INTO `users` (`User_ID`, `Email`, `Password`, `F_Name`, `L_Name`, `Role_I
 (4, 'travism@gmail.com', '$2y$10$51w.mq/2Ya7Hj5xeyAAU9eq//OLTm..isTuxZ3dRbq6/7ybzUbwuO', 'Travis', 'Mutungi', 3, 'active'),
 (5, 'dmuriuki@gmail.com', '$2y$10$O9m8z0oyYlkNr4DF.Y2ote0eMeT5eq1x4VDRRBaNtZ.VgQUJi4KCe', 'Daniel', 'Muriuki', 1, 'active'),
 (6, 'erodriguez@gmail.com', '$2y$10$Ql59.CzaaXS1bHDe7zg45OqwlrQPNAeWNclu5xBffdnMweH3SmZze', 'Eva', 'Rodriguez', 2, 'active'),
-(7, 'nataliec@gmail.com', '$2y$10$7x1XD.NkUzGj.mkQnGkOGOgcUphjhNEz.1ip5DnVw6cvT7eSQNE86', 'Natalie', 'Chelangat', 4, 'active');
+(7, 'nataliec@gmail.com', '$2y$10$7x1XD.NkUzGj.mkQnGkOGOgcUphjhNEz.1ip5DnVw6cvT7eSQNE86', 'Natalie', 'Chelangat', 3, 'active'),
+(8, 'admin@gmail.com', '$2y$10$kN7PHdILRs/OFHWScNaJr.9ATlMVaTok/Sl4bxbXw.ei.6TLDpCdm', 'Dueday', 'Admin', 4, 'active');
 
 -- --------------------------------------------------------
 
@@ -471,6 +472,7 @@ CREATE TABLE `user_achievements` (
 --
 
 INSERT INTO `user_achievements` (`User_ID`, `Achievement_ID`) VALUES
+(3, 1),
 (4, 1),
 (4, 2),
 (4, 3),
@@ -481,7 +483,9 @@ INSERT INTO `user_achievements` (`User_ID`, `Achievement_ID`) VALUES
 (6, 3),
 (7, 1),
 (7, 2),
-(7, 3);
+(7, 3),
+(8, 1),
+(8, 2);
 
 -- --------------------------------------------------------
 
@@ -890,7 +894,7 @@ ALTER TABLE `timetable`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `User_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `User_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `user_timetable`
