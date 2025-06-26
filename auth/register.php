@@ -2,6 +2,11 @@
 // Use the core initializer
 require_once "../core/init.php";
 
+// --- NEW: DEFINE YOUR SECRET INVITATION CODES HERE ---
+// You can change these codes to anything you want. Keep them secret.
+define('MODULE_LEADER_CODE', 'ML-SECRET');
+define('EVENT_COORDINATOR_CODE', 'EC-SECRET');
+
 // If a user is already logged in, redirect them to the home page
 if (isset($_SESSION['user_id'])) {
     header('Location: ../home.php');
@@ -18,6 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
     $role_id = $_POST['role'] ?? '';
+    $invitation_code = trim($_POST['invitation_code'] ?? ''); // New field
 
     if (empty($fname)) { $errors[] = "First name is required."; }
     if (empty($lname)) { $errors[] = "Last name is required."; }
@@ -26,6 +32,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (strlen($password) < 8) { $errors[] = "Password must be at least 8 characters long."; }
     if ($password !== $confirm_password) { $errors[] = "Passwords do not match."; }
     if (empty($role_id)) { $errors[] = "Please select a role."; }
+
+    // --- NEW: INVITATION CODE VALIDATION ---
+    // Role ID 1 = Module Leader, Role ID 3 = Event Coordinator (check your DB if different)
+    if ($role_id == 1 && $invitation_code !== MODULE_LEADER_CODE) {
+        $errors[] = "Invalid invitation code for Module Leader role.";
+    }
+    if ($role_id == 3 && $invitation_code !== EVENT_COORDINATOR_CODE) {
+        $errors[] = "Invalid invitation code for Event Coordinator role.";
+    }
+    // No code is needed for Role ID 2 (Student)
 
     // --- Database Interaction ---
     if (empty($errors)) {
@@ -42,10 +58,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $stmt_insert->bind_param("ssssi", $fname, $lname, $email, $hashedPassword, $role_id);
 
             if ($stmt_insert->execute()) {
-                $new_user_id = $stmt_insert->insert_id;
-                // This function is in init.php and will now work correctly
-                award_achievement($conn, $new_user_id, 2); // Assumes Achievement ID 2 is "Account Created"
-
                 header("Location: login.php?registered=success");
                 exit();
             } else {
@@ -113,8 +125,17 @@ $conn->close();
                 <label for="role">Select Your Role:</label>
                 <select name="role" id="role" required>
                     <option value="" disabled selected>-- Choose a role --</option>
-                    <option value="2">Student</option> <option value="1">Module Leader</option> <option value="3">Event Coordinator</option> </select>
+                    <option value="2">Student</option> 
+                    <option value="1">Module Leader</option> 
+                    <option value="3">Event Coordinator</option>
+                </select>
             </div>
+            
+            <div class="form-group full" id="invitationCodeGroup" style="display: none;">
+                <label for="invitation_code">Invitation Code:</label>
+                <input type="text" name="invitation_code" id="invitation_code" placeholder="Required for non-student roles">
+            </div>
+
             <button type="submit">Register</button>
         </form>
         <div class="redirect-link">

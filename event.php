@@ -64,7 +64,7 @@ if ($is_event_coordinator) {
 
 <?php if ($is_event_coordinator): ?>
     <div class="page-actions"><button id="showCreateBtn" class="btn btn--primary">Create New Event</button></div>
-    <div class="form-container" id="createForm" style="display: none;">
+    <div class="form-container" id="createForm">
         <h2 class="section-title">New Event Details</h2>
         <form method="POST" action="event.php">
             <input type="hidden" name="action" value="create_event">

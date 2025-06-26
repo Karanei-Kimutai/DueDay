@@ -9,13 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->begin_transaction();
         try {
             $stmt = $conn->prepare("INSERT INTO Polls (Poll_Title, Poll_Description, Class_ID, Expires_At, Status, Is_Anonymous, Allow_Multiple_Choices) VALUES (?, ?, ?, ?, 'Active', ?, ?)");
-            
             $is_anonymous = isset($_POST['is_anonymous']) ? 1 : 0;
             $allow_multiple = isset($_POST['allow_multiple']) ? 1 : 0;
-            
-            // --- FIX: Corrected the type string from "ssisiii" (7 chars) to "ssisii" (6 chars) ---
             $stmt->bind_param("ssisii", $_POST['poll_title'], $_POST['poll_description'], $_POST['class_id'], $_POST['poll_expiry'], $is_anonymous, $allow_multiple);
-            
             $stmt->execute();
             $poll_id = $conn->insert_id;
             $stmt_options = $conn->prepare("INSERT INTO Poll_Options (Poll_ID, Option_Text) VALUES (?, ?)");
@@ -25,14 +21,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: poll.php?created=success");
         exit();
     }
+    // This logic already supports changing a vote because it deletes the old one first.
     if ($action === 'submit_vote') {
         $poll_id = $_POST['poll_id'];
         $selected_options = $_POST['option'] ?? [];
         if (!is_array($selected_options)) { $selected_options = [$selected_options]; }
         if (!empty($selected_options)) {
-            $stmt_delete = $conn->prepare("DELETE FROM Poll_Data WHERE User_ID = ? AND Poll_ID = ?"); $stmt_delete->bind_param("ii", $user_id, $poll_id); $stmt_delete->execute();
+            $stmt_delete = $conn->prepare("DELETE FROM Poll_Data WHERE User_ID = ? AND Poll_ID = ?");
+            $stmt_delete->bind_param("ii", $user_id, $poll_id);
+            $stmt_delete->execute();
             $stmt_insert = $conn->prepare("INSERT INTO Poll_Data (User_ID, Poll_ID, Option_ID) VALUES (?, ?, ?)");
             foreach ($selected_options as $option_id) { $stmt_insert->bind_param("iii", $user_id, $poll_id, $option_id); $stmt_insert->execute(); }
+            // Only award achievement on the first vote
             award_achievement($conn, $user_id, 3);
         }
         header("Location: poll.php?voted=true");
@@ -83,14 +83,8 @@ while ($row = $result->fetch_assoc()) {
             <div class="form-group">
                 <label>Poll Options:</label>
                 <div id="pollOptionsContainer">
-                    <div class="poll-option-item">
-                        <input type="text" name="options[]" class="form-input" placeholder="Option 1" required>
-                        <button type="button" class="btn remove-option-btn">&times;</button>
-                    </div>
-                    <div class="poll-option-item">
-                        <input type="text" name="options[]" class="form-input" placeholder="Option 2" required>
-                        <button type="button" class="btn remove-option-btn">&times;</button>
-                    </div>
+                    <div class="poll-option-item"><input type="text" name="options[]" class="form-input" placeholder="Option 1" required><button type="button" class="btn remove-option-btn">&times;</button></div>
+                    <div class="poll-option-item"><input type="text" name="options[]" class="form-input" placeholder="Option 2" required><button type="button" class="btn remove-option-btn">&times;</button></div>
                 </div>
                 <button type="button" id="addPollOptionBtn" class="btn btn--secondary" style="margin-top: 10px;">+ Add Option</button>
             </div>
@@ -112,9 +106,20 @@ while ($row = $result->fetch_assoc()) {
                 <form method="POST" action="poll.php">
                     <input type="hidden" name="action" value="submit_vote"><input type="hidden" name="poll_id" value="<?php echo $poll_id; ?>">
                     <div class="card__header"><h3 class="card__title"><?php echo htmlspecialchars($poll['title']); ?></h3><?php if($poll['class_name']): ?><span class="card__meta-tag"><?php echo htmlspecialchars($poll['class_name']); ?></span><?php endif; ?></div>
-                    <div class="poll-body"><div class="poll-options"><?php foreach ($poll['options'] as $option): ?><div class="poll-option"><input type="<?php echo $poll['allow_multiple'] ? 'checkbox' : 'radio'; ?>" name="option<?php echo $poll['allow_multiple'] ? '[]' : ''; ?>" value="<?php echo $option['id']; ?>" id="opt_<?php echo $option['id']; ?>" <?php echo !$poll['is_active'] || $user_has_voted ? 'disabled' : ''; ?>><label for="opt_<?php echo $option['id']; ?>"><?php echo htmlspecialchars($option['text']); ?></label></div><?php endforeach; ?></div></div>
+                    <div class="poll-body">
+                        <div class="poll-options">
+                            <?php foreach ($poll['options'] as $option): ?>
+                                <div class="poll-option">
+                                    <input type="<?php echo $poll['allow_multiple'] ? 'checkbox' : 'radio'; ?>" name="option<?php echo $poll['allow_multiple'] ? '[]' : ''; ?>" value="<?php echo $option['id']; ?>" id="opt_<?php echo $option['id']; ?>" <?php echo !$poll['is_active'] ? 'disabled' : ''; ?>>
+                                    <label for="opt_<?php echo $option['id']; ?>"><?php echo htmlspecialchars($option['text']); ?></label>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
                     <div class="card__footer">
-                        <?php if ($poll['is_active'] && !$user_has_voted): ?><button type="submit" class="btn btn--primary">Submit Vote</button><?php endif; ?>
+                        <?php if ($poll['is_active']): ?>
+                            <button type="submit" class="btn btn--primary"><?php echo $user_has_voted ? 'Change Vote' : 'Submit Vote'; ?></button>
+                        <?php endif; ?>
                         <button type="button" class="btn btn--secondary view-results-btn" data-modal-target="resultsModal" data-poll-id="<?php echo $poll_id; ?>">View Results</button>
                     </div>
                 </form>

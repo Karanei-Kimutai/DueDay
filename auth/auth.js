@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --- NEW: Password Match Validation (for registration form) ---
+    // --- Password Match Validation (for registration form) ---
     const registerForm = document.getElementById("registerForm");
     const confirmPasswordInput = document.getElementById("confirm_password");
 
@@ -42,6 +42,21 @@ document.addEventListener("DOMContentLoaded", () => {
             if (passwordInput.value !== confirmPasswordInput.value) {
                 alert("Passwords do not match. Please try again.");
                 event.preventDefault(); // Stop the form from submitting
+            }
+        });
+    }
+
+    // --- NEW: Logic for Invitation Code Field ---
+    const roleSelect = document.getElementById("role");
+    const invitationCodeGroup = document.getElementById("invitationCodeGroup");
+
+    if (roleSelect && invitationCodeGroup) {
+        roleSelect.addEventListener("change", function() {
+            // Role ID '2' is for Student. Show the code field for any other role.
+            if (this.value !== '2' && this.value !== '') {
+                invitationCodeGroup.style.display = 'block';
+            } else {
+                invitationCodeGroup.style.display = 'none';
             }
         });
     }

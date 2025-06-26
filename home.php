@@ -11,25 +11,40 @@ if (isset($user_role) && $user_role === 'Admin'):
 <?php 
 endif; 
 
-// --- FIX: Get today's day of the week based on the PHP timezone we set in header.php ---
-// PHP's date('w') is 0-6 (Sun-Sat). MySQL's DAYOFWEEK() is 1-7 (Sun-Sat). We add 1 to match.
-$todays_day_of_week = date('w') + 1;
-
+// --- FIX: Get both the day of the week AND the current time ---
+$todays_day_of_week = date('w') + 1; // 1 (Sun) to 7 (Sat)
+$current_time = date('H:i:s');      // e.g., "18:00:00"
 
 // --- DATA FETCHING FOR WIDGETS ---
 // Stat Cards
 $assignment_count = $conn->query("SELECT COUNT(*) as count FROM Assignments WHERE Assignment_DueDate >= NOW()")->fetch_assoc()['count'];
 $poll_count = $conn->query("SELECT COUNT(*) as count FROM Polls WHERE Expires_At >= NOW()")->fetch_assoc()['count'];
 
-// --- FIX: This query now uses a placeholder '?' for the day of the week ---
-$stmt_class_count = $conn->prepare("SELECT COUNT(DISTINCT uc.Class_ID) as count FROM user_classes uc JOIN class_schedule cs ON uc.Class_ID = cs.Class_ID WHERE uc.User_ID = ? AND cs.Day_Of_Week = ?");
-// --- FIX: Bind the PHP-calculated day of the week to the query ---
-$stmt_class_count->bind_param("ii", $user_id, $todays_day_of_week);
+// --- FIX: Modify the class count query to also check the time ---
+$stmt_class_count = $conn->prepare(
+    "SELECT COUNT(DISTINCT uc.Class_ID) as count 
+     FROM user_classes uc 
+     JOIN class_schedule cs ON uc.Class_ID = cs.Class_ID 
+     WHERE uc.User_ID = ? AND cs.Day_Of_Week = ? AND cs.End_Time > ?"
+);
+$stmt_class_count->bind_param("iis", $user_id, $todays_day_of_week, $current_time);
 $stmt_class_count->execute();
 $class_count = $stmt_class_count->get_result()->fetch_assoc()['count'];
 $stmt_class_count->close();
 
-$unread_comments = 0; // Placeholder
+// Unread Comments Count Logic
+$stmt_comments = $conn->prepare(
+    "SELECT COUNT(ac.Comment_ID) as count
+     FROM assignment_comments ac
+     JOIN assignments a ON ac.Assignment_ID = a.Assignment_ID
+     JOIN user_classes uc ON a.Class_ID = uc.Class_ID AND uc.User_ID = ?
+     LEFT JOIN user_read_comments rc ON ac.Comment_ID = rc.Comment_ID AND rc.User_ID = ?
+     WHERE rc.Comment_ID IS NULL"
+);
+$stmt_comments->bind_param("ii", $user_id, $user_id);
+$stmt_comments->execute();
+$unread_comments = $stmt_comments->get_result()->fetch_assoc()['count'] ?? 0;
+$stmt_comments->close();
 
 // Units You're Involved In
 $units_with_status_sql = "SELECT c.Class_ID, c.Class_Name, (SELECT COUNT(*) FROM Assignments a WHERE a.Class_ID = c.Class_ID AND a.Assignment_DueDate >= NOW()) as pending_assignments, (SELECT COUNT(*) FROM Polls p WHERE p.Class_ID = c.Class_ID AND p.Expires_At >= NOW()) as active_polls FROM Classes c JOIN User_Classes uc ON c.Class_ID = uc.Class_ID WHERE uc.User_ID = ?";
@@ -39,18 +54,16 @@ $stmt_units->execute();
 $user_units = $stmt_units->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt_units->close();
 
-// Today's Classes Widget
-// --- FIX: This query also uses a placeholder '?' for the day of the week ---
+// --- FIX: Today's Classes Widget Query now checks the current time ---
 $todays_classes_sql = "SELECT cs.Start_Time, cs.End_Time, c.Class_Name, v.Venue_Name 
                        FROM Class_Schedule cs 
                        JOIN Classes c ON cs.Class_ID = c.Class_ID 
                        JOIN Venues v ON cs.Venue_ID = v.Venue_ID 
                        JOIN User_Classes uc ON c.Class_ID = uc.Class_ID 
-                       WHERE uc.User_ID = ? AND cs.Day_Of_Week = ? 
+                       WHERE uc.User_ID = ? AND cs.Day_Of_Week = ? AND cs.End_Time > ?
                        ORDER BY cs.Start_Time ASC";
 $stmt_today = $conn->prepare($todays_classes_sql);
-// --- FIX: Bind the PHP-calculated day of the week here as well ---
-$stmt_today->bind_param("ii", $user_id, $todays_day_of_week);
+$stmt_today->bind_param("iis", $user_id, $todays_day_of_week, $current_time);
 $stmt_today->execute();
 $todays_classes = $stmt_today->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt_today->close();
@@ -88,8 +101,14 @@ $stmt_notifications->close();
                 <?php foreach($user_units as $unit): ?>
                     <div class="unit-card">
                         <div class="unit-name"><?php echo htmlspecialchars($unit['Class_Name']); ?></div>
-                        <?php if($unit['pending_assignments'] > 0): ?><span class="unit-status unit-status--assignment">Assignment Pending</span>
-                        <?php elseif($unit['active_polls'] > 0): ?><span class="unit-status unit-status--poll">Poll Active</span><?php endif; ?>
+                        <div class="unit-status-container">
+                            <?php if($unit['pending_assignments'] > 0): ?>
+                                <span class="unit-status unit-status--assignment">Assignment Pending</span>
+                            <?php endif; ?>
+                            <?php if($unit['active_polls'] > 0): ?>
+                                <span class="unit-status unit-status--poll">Poll Active</span>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>

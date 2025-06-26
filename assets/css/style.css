@@ -546,3 +546,60 @@ body {
 .list-widget-link:hover {
     text-decoration: underline;
 }
+/* --- Comment Modal Styles --- */
+.comments-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--medium-gray);
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: var(--light-gray);
+}
+
+.comment-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--medium-gray);
+}
+
+.comment-item:last-child {
+    border-bottom: none;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+}
+
+.comment-author {
+    font-weight: 600;
+    color: var(--egyptian-blue);
+}
+
+.comment-date {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.comment-body {
+    color: var(--text-primary);
+    word-wrap: break-word;
+}
+/* ADD THESE NEW STYLES TO THE END OF YOUR CSS FILE */
+
+/* --- FIX: Styles for the container holding unit status tags --- */
+.unit-status-container {
+    display: flex;
+    flex-wrap: wrap; /* Allows tags to wrap if needed */
+    gap: 6px; /* Provides spacing between tags */
+}
+
+/* --- FIX: Improved grid layout for unit cards for better consistency --- */
+.units-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Use auto-fit for better alignment */
+    gap: 15px;
+}
